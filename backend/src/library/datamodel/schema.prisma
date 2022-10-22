@@ -1,0 +1,49 @@
+generator client {
+   provider = "prisma-client-js"
+}
+
+datasource db {
+   provider = "postgresql"
+   url      = env("DATABASE_URL")
+}
+
+model Account {
+   id        String   @id @default(cuid())
+   email     String   @unique
+   passHash  String   @map("pass_hash")
+   createdAt DateTime @default(now()) @map("created_at")
+   updatedAt DateTime @updatedAt @map("updated_at")
+
+   profile Profile?
+
+   @@map("accounts")
+}
+
+model Profile {
+   id        Int      @id @default(autoincrement())
+   name      String?
+   bio       String?
+   image     String?
+   createdAt DateTime @default(now()) @map("created_at")
+   updatedAt DateTime @updatedAt @map("updated_at")
+
+   account   Account  @relation(fields: [accountId], references: [id])
+   accountId String   @unique @map("account_id")
+   reviews   Review[]
+
+   @@map("profiles")
+}
+
+model Review {
+   id        Int      @id @default(autoincrement())
+   title     String   @db.VarChar(255)
+   content   String?
+   published Boolean  @default(false)
+   createdAt DateTime @default(now()) @map("created_at")
+   updatedAt DateTime @updatedAt @map("updated_at")
+
+   author   Profile @relation(fields: [authorId], references: [id])
+   authorId Int     @map("account_id")
+
+   @@map("reviews")
+}

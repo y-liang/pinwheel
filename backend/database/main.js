@@ -19,22 +19,22 @@
 
 import { PrismaClient } from "@prisma/client";
 
-let db;
-let _db; // existing connection, might not be necessary to check if instance already exists
+let dbClient;
+let _client; // existing connection, might not be necessary to check if instance already exists
 
 // this is needed because in development we don't want to restart
 // the server with every change, but we want to make sure we don't
 // create a new connection to the db with every change either.
 if (process.env.NODE_ENV === "production") {
-   db = new PrismaClient();
+   dbClient = new PrismaClient();
 } else {
-   if (!_db) {
-      _db = new PrismaClient();
+   if (!_client) {
+      _client = new PrismaClient();
    }
-   db = _db;
+   dbClient = _client;
 }
 
-export default db;
+export default dbClient;
 
 
 /**

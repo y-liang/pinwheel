@@ -4,79 +4,44 @@
  */
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import ErrorFound from './frames/cover/ensembles/error-found';
+import AuthProvider from './frames/universal/auth/auth-provider';
+import AuthRequire from './frames/universal/auth/auth-require';
 
-import ErrorFound from './frames/segments/cover/error-found';
-import Cover from './frames/ensembles/cover';
-import Frame from './frames/ensembles/frame';
+import Frame from './frames/frame';
+import Cover from './frames/cover/cover';
+import Review from './frames/review/review';
+import Profile from './frames/profile/profile';
+import Account from './frames/account/account';
 
-import Account from './frames/ensembles/account';
+import ReviewView, { action as actionReviewView, loader as loaderReviewView } from './frames/review/ensembles/review-view';
+import ReviewEdit, { action as actionReviewEdit, loader as loaderReviewEdit } from './frames/review/ensembles/review-edit';
+import { action as actionReviewDelete } from './frames/review/ensembles/review-delete';
 
-import Profile, { loader as profileLoader, action as profileAction } from './frames/ensembles/profile';
-import Detail, { loader as detailLoader, action as detailAction } from './frames/ensembles/detail';
-import LogIn from './frames/segments/account/login';
+import ProfileView from './frames/profile/ensembles/profile-edit';
+import ProfileView from './frames/profile/ensembles/profile-view';
 
-import AuthProvider, { RequireAuth } from './gears/mock/auth-context';
-import MockPublic from './frames/ensembles/mock-public';
-import MockProtected from './frames/ensembles/mock-protected';
-import ProfilesDisplay from './frames/segments/cover/profiles-display';
-import ProfileView from './frames/segments/profile/profile-view';
-import ProfileEdit from './frames/segments/profile/edit-profile';
-import Review, { action as actionReview, loader as loaderReview } from './frames/ensembles/review';
-import ReviewEdit from './frames/ensembles/review-edit';
+import LogIn from './frames/account/ensembles/login';
+import LogOut from './frames/account/ensembles/logout';
+import SignUp from './frames/account/ensembles/signup';
+
+
 
 
 
 
 const router = createBrowserRouter([
    {
-      // path: '/', // unnecessary???
-      element: <AuthProvider><Frame /></AuthProvider>,
+      path: '/', // unnecessary but keep it for visual
+      element:
+         <AuthProvider>
+            <Frame />
+         </AuthProvider>,
       errorElement: <ErrorFound />,
       children: [
          {
-            path: '/',
+            index: true,
             element: <Cover />
-         },
-         {
-            path: 'reviews',
-            children: [
-               {
-                  path: '/:reviewId',
-                  element: <Review />,
-                  loader: loaderReview,
-                  action: actionReview,
-               },
-               {
-                  path: '/:reviewId/edit',
-                  element: <ReviewEdit />,
-                  loader: loaderReview,
-                  action: actionReview,
-               },
-            ]
-         },
-         {
-            path: 'profiles',
-            element: <ProfilesDisplay />
-         },
-         {
-            path: 'profile/:profileId',
-            element: <Profile />,
-            // loader: profileLoader,
-            // action: profileAction,
-            children: [
-               {
-                  // path: 'view', // unnecessary to have path here
-                  element: <ProfileView />,
-                  // loader: getProfile,
-                  // action: redirectToEdit,
-               },
-               {
-                  path: 'edit',
-                  element: <ProfileEdit />,
-                  // loader: getProfile,
-                  // action: submitEdit,
-               },
-            ]
          },
          {
             path: 'account',
@@ -91,13 +56,67 @@ const router = createBrowserRouter([
                {
                   path: 'logout',
                   // action: logoutProfile,
+               },
+               {
+                  path: 'signup',
+                  element: <SignUp />,
                }
             ]
 
          },
+         {
+            path: 'reviews',
+            element: <Review />,
+            children: [
+               // { index: true, element: <Index /> }, // the { index:true } instead of { path: "" }. That tells the router to match and render this route when the user is at the parent route's exact path, so there are no other child routes to render in the <Outlet>.
+               {
+                  path: ':reviewId',
+                  element: <ReviewView />,
+                  // loader: loaderReviewView,
+                  // action: actionReviewView,
+               },
+               {
+                  path: ':reviewId/edit',
+                  element: <ReviewEdit />,
+                  // loader: loaderReviewView,
+                  // action: actionReviewEdit,
+               },
+               {
+                  path: ':reviewId/delete',
+                  errorElement: <div> Oops! There was an error.</div>,
+                  // action: actionReviewDelete,
+               }
+            ]
+         },
+         {
+            path: 'profiles',
+            // element: <Profile />
+         },
+         {
+            path: '/:profileId',
+            // element: <Profile />,
+            // loader: profileLoader,
+            // action: profileAction,
+            children: [
+               {
+                  // path: 'view', // unnecessary to have path here
+                  // element: <ProfileView />,
+                  // loader: getProfile,
+                  // action: redirectToEdit,
+               },
+               {
+                  path: 'edit',
+                  // element: <ProfileEdit />,
+                  // loader: getProfile,
+                  // action: submitEdit,
+               },
 
-         { path: 'public', element: <MockPublic /> },
-         { path: 'protected', element: <RequireAuth><MockProtected /></RequireAuth> },
+            ]
+         },
+
+
+         // { path: 'public', element: <MockPublic /> },
+         // { path: 'protected', element: <AuthRequire><MockProtected /></AuthRequire> },
       ]
    },
 ]);
