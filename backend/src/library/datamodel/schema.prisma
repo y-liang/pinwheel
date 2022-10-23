@@ -8,42 +8,82 @@ datasource db {
 }
 
 model Account {
-   id        String   @id @default(cuid())
-   email     String   @unique
-   passHash  String   @map("pass_hash")
+   id       String @id @default(cuid())
+   email    String @unique
+   passHash String @map("pass_hash")
+
+   isDeactivated Boolean @default(false)
+
+   role       Role       @default(reader)
+   reviews    Review[]
+   profile    Profile?
+   activities Activity[]
+
    createdAt DateTime @default(now()) @map("created_at")
    updatedAt DateTime @updatedAt @map("updated_at")
-
-   profile Profile?
 
    @@map("accounts")
 }
 
+enum Role {
+   reader
+   author
+   editor
+   administrator
+}
+
 model Profile {
-   id        Int      @id @default(autoincrement())
-   name      String?
-   bio       String?
-   image     String?
+   id    Int     @id @default(autoincrement())
+   name  String?
+   bio   String?
+   image String?
+
+   isDeleted Boolean @default(false)
+
+   account   Account @relation(fields: [accountId], references: [id])
+   accountId String  @unique @map("account_id")
+
    createdAt DateTime @default(now()) @map("created_at")
    updatedAt DateTime @updatedAt @map("updated_at")
-
-   account   Account  @relation(fields: [accountId], references: [id])
-   accountId String   @unique @map("account_id")
-   reviews   Review[]
 
    @@map("profiles")
 }
 
 model Review {
-   id        Int      @id @default(autoincrement())
-   title     String   @db.VarChar(255)
-   content   String?
-   published Boolean  @default(false)
+   id      Int     @id @default(autoincrement())
+   title   String  @db.VarChar(255)
+   content String?
+
+   published Boolean @default(false)
+
+   reviewer   Account @relation(fields: [reviewerId], references: [id])
+   reviewerId String  @map("reviewer_id")
+
    createdAt DateTime @default(now()) @map("created_at")
    updatedAt DateTime @updatedAt @map("updated_at")
 
-   author   Profile @relation(fields: [authorId], references: [id])
-   authorId Int     @map("account_id")
-
    @@map("reviews")
+}
+
+model Activity {
+   id      Int     @id @default(autoincrement())
+   action  Action
+   actor   Account @relation(fields: [actorId], references: [id])
+   actorId String  @map("actor_id")
+
+   createdAt DateTime @default(now()) @map("created_at")
+   updatedAt DateTime @updatedAt @map("updated_at")
+
+   @@map("activities")
+}
+
+enum Action {
+   signup
+   login
+   reset
+   deactivate
+   reactivate
+   forget
+   logout
+   verify
 }
