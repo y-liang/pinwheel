@@ -1,15 +1,26 @@
 const { BACKEND_URL } = process.env;
 const baseurl = BACKEND_URL;
 
-// endpoint /token
+
+/**
+ * endpoint /token
+ * both functions only should be called in auth-provider
+ * in other components, useAuth - auth.access and auth.egress
+ */
+
+
+
+
+
+
 
 /**
  * post - to receive token - access type
- * type/fields - signup/credentials | login/password | forget/email | reset/credentials
+ * type/fields - signup/credentials | login/password | forget/email | reset/credentials | deactivate
  * fields { email, password = null }
  * return { access_token, token_type, expires_in } or { description }
  */
-export function tokenPost(type, fields) {
+export function tokenAccess(type, fields) {
    const url = `${baseurl}/token?access_type=${type}`; // grant_type
    const response = await fetch(url, {
       method: 'POST',
@@ -24,11 +35,11 @@ export function tokenPost(type, fields) {
 
 /**
  * get - to send token - egress type
- * type - logout | verify | deactivate
+ * type - logout | verify 
  * fields { email, password = null }
- * return { access_token, token_type, expires_in } or { description }
+ * return { refresh_token, token_type, expires_in } or { description }
  */
-export function tokenGet(type, token) {
+export function tokenEgress(type, token) {
    const url = `${baseurl}/token?egress_type=${type}`;
    const response = await fetch(url, {
       method: 'GET',

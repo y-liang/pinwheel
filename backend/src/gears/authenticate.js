@@ -1,34 +1,18 @@
 /**
- * interaction between backend and database
+ * interaction between backend and database via orm
+ * 
+ * check (token verify) | mark (activity log)
+ * signup | login | forget | reset | deactivate (equals to delete) | reactivate (omit, equals to signup) 
+ * logout | verify
+ * 
  */
 
 import encrypt from '../library/utils/encrypt.js';
 import { default as db } from '../../database/main.js';
 
-
-
-// check
-// signup | login | reset | deactivate | reactivate | forget
-// logout | verify
-
-
 const authenticate = {
    // check if account is active
    async check(accountId) {
-      // const account = await db.account.findFirst({
-      //    where: { id: accountId },
-      // });
-
-      // // no account id match or isDeactivated
-      // if (!account || account.isDeactivated) {
-      //    return {
-      //       description: `An account with email ${email} does not exists.`
-      //    };
-      // }
-
-      // return true; // not sure if to return profile id
-
-
       // get the account record with an id
       // or select the id field of one account record with an id
       const account = await db.account.findUnique({
@@ -48,7 +32,6 @@ const authenticate = {
 
    },
 
-
    // table activities
    async mark(action, accountId) {
       await db.activity.create({
@@ -59,8 +42,59 @@ const authenticate = {
       });
    },
 
+   // unnecessary
+   // async logout(accountId) {
+   //    return;
+   // },
 
 
+   // create a profile for verified account
+   async verify(accountId, email) {
+      // check if profile exists, account already verified
+      const profileExists = await db.profile.findUnique({
+         where: {
+            accountId,
+         },
+         select: {
+            id: true,
+            deleted: true
+         }
+      });
+
+      // if profile exists
+      if (profileExists) {
+         if (!isDeleted) {
+            return {
+               description: `An account with email ${email} has already been verified.`
+            };
+         }
+
+         // if profile exists but isDeleted, update it to be false, keep other fields as is
+         const { id: profileId } = accountExists;
+         await db.account.update({
+            data: {
+               isDeleted: false,
+            },
+            where: {
+               id: profileId,
+            }
+         });
+
+         return { profileId };
+      }
+
+      // not exist, create profile
+      const { id: profileId } = await db.profile.create({
+         data: {
+            accountId,
+         },
+         select: {
+            id: true,
+         }
+      });
+
+      return { profileId };
+   },
 
    async signup({ email, password }) {
       const accountExists = await db.account.findFirst({
@@ -142,60 +176,6 @@ const authenticate = {
       }
 
       return { accountId, email };
-   },
-
-   // unnecessary
-   // async logout(accountId) {
-   //    return;
-   // },
-
-
-   // create a profile for verified account
-   async verify(accountId, email) {
-      // check if profile exists, account already verified
-      const profileExists = await db.profile.findUnique({
-         where: {
-            accountId,
-         },
-         select: {
-            id: true,
-            deleted: true
-         }
-      });
-
-      // if profile exists
-      if (profileExists) {
-         if (!isDeleted) {
-            return {
-               description: `An account with email ${email} has already been verified.`
-            };
-         }
-
-         // if profile exists but isDeleted, update it to be false, keep other fields as is
-         const { id: profileId } = accountExists;
-         await db.account.update({
-            data: {
-               isDeleted: false,
-            },
-            where: {
-               id: profileId,
-            }
-         });
-
-         return { profileId };
-      }
-
-      // not exist, create profile
-      const { id: profileId } = await db.profile.create({
-         data: {
-            accountId,
-         },
-         select: {
-            id: true,
-         }
-      });
-
-      return { profileId };
    },
 
    async forget({ email, password }) {

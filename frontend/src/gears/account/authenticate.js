@@ -2,7 +2,7 @@
 // const { BACKEND_URL } = process.env;
 // const baseurl = BACKEND_URL;
 
-// // used in auth-provider.jsx
+// // called in auth-provider.jsx
 // // response return error or token https://www.rfc-editor.org/rfc/rfc6749#section-5.1
 // // request send token in header https://www.rfc-editor.org/rfc/rfc6749#section-4.1
 

@@ -16,7 +16,6 @@ import Account from './frames/account/account';
 
 import ReviewView, { action as actionReviewView, loader as loaderReviewView } from './frames/review/ensembles/review-view';
 import ReviewEdit, { action as actionReviewEdit, loader as loaderReviewEdit } from './frames/review/ensembles/review-edit';
-import { action as actionReviewDelete } from './frames/review/ensembles/review-delete';
 
 import ProfileView from './frames/profile/ensembles/profile-edit';
 import ProfileView from './frames/profile/ensembles/profile-view';
@@ -24,6 +23,8 @@ import ProfileView from './frames/profile/ensembles/profile-view';
 import LogIn from './frames/account/ensembles/login';
 import LogOut from './frames/account/ensembles/logout';
 import SignUp from './frames/account/ensembles/signup';
+import Access from './frames/account/ensembles/access';
+import Egress from './frames/account/ensembles/egress';
 
 
 
@@ -48,19 +49,33 @@ const router = createBrowserRouter([
             element: <Account />,
             children: [
                {
-                  path: 'login',
-                  element: <LogIn />,
-                  // loader: redirectIfProfile,
-                  // action: loginProfile,
-               },
-               {
                   path: 'logout',
-                  // action: logoutProfile,
+                  element: <Egress type={'logout'} />
                },
+
                {
                   path: 'signup',
-                  element: <SignUp />,
-               }
+                  element: <Access type={'signup'} />,
+               },
+               {
+                  path: 'login',
+                  element: <Access type={'login'} />,
+               },
+               {
+                  path: 'forget',
+                  element: <Access type={'forget'} />,
+               },
+               {
+                  path: 'reset',
+                  element: <Access type={'reset'} />,
+               },
+               {
+                  path: 'deactivate',
+                  element: <Access type={'deactivate'} />,
+               },
+
+
+
             ]
 
          },
