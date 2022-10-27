@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { default as queryAccount } from '../../library/apis/account-querier';
+import { default as queryAccount } from '../../library/apis/account-querier.js';
 import tokenVerifier from '../../library/middleware/token-verifier.js';
 
 
@@ -20,8 +20,6 @@ router.post('/', async (req, res) => {
    res.setHeader('Content-Type', 'application/json;charset=UTF-8');
 
    const { email, password = null } = req.body;
-
-   console.log('email, password', { email, password });
 
    let account;
    switch (type) {
@@ -64,7 +62,8 @@ router.post('/', async (req, res) => {
    // unsuccessful
    if (account.description) {
       res.status(200).send({
-         description: account.description
+         alert: `failed_${type}`,
+         alert_description: account.alertDescription
       });
       return;
    }
@@ -72,12 +71,8 @@ router.post('/', async (req, res) => {
    /* successful, proceed following */
    const { accountId } = account;
 
-   console.log('account', account);
-   console.log('accountId', accountId);
-
    // log activity
    await queryAccount.mark(type, accountId);
-
 
    // successful, but if `forget` - do no send token in response
    if (type == 'forget') {
@@ -112,14 +107,18 @@ router.post('/', async (req, res) => {
 router.get('/', tokenVerifier, async (req, res) => {
    const { egress_type: type } = req.query;
    res.setHeader('Content-Type', 'application/json;charset=UTF-8');
-   const { accountId, email } = req.token || {};
-   if (!accountId || !email) {
+
+   if (typeof req.token.description == 'string') { // that req.token.description !== undefined
       res.status(400).send({
          error: 'invalid_request',
          error_description: 'Invalid token.'
       });
       return;
    }
+
+
+   const { accountId, email } = req.token || {};
+
 
    // check if email, accountId exist and active
    // if not return error
@@ -153,14 +152,15 @@ router.get('/', tokenVerifier, async (req, res) => {
 
    // successful, but if `logout` - do no send token in response
    if (type == 'logout') {
-      res.status(200).end();
-      return; // unnecessary?
+      // res.status(200).end();
+      res.status(200).send({}); // cannot end() because content type json
+      return;
    }
 
    // successful, token
    const token = jwt.sign({
       accountId,
-      profileId, // necessary?
+      // profileId, // necessary?
       email
    }, JWT_SECRET, { expiresIn: 60 * 60 });
 

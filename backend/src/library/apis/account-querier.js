@@ -65,7 +65,7 @@ const querier = {
       if (profileExists) {
          if (!profileExists.isDeleted) {
             return {
-               description: `An account with email ${email} has already been verified.`
+               alertDescription: `An account with email ${email} has already been verified.`
             };
          }
 
@@ -112,7 +112,7 @@ const querier = {
       if (accountExists) {
          if (!accountExists.isDeactivated) {
             return {
-               description: `An account with email ${email} already exists.`
+               alertDescription: `An account with email ${email} already exists.`
             };
          }
 
@@ -160,7 +160,7 @@ const querier = {
       // if (!account) return null;
       if (!accountId) {
          return {
-            description: `An account with email ${email} does not exists.`
+            alertDescription: `An account with email ${email} does not exists.`
          };
       }
 
@@ -171,7 +171,7 @@ const querier = {
       // if (!isPasswordCorrect) return null;
       if (!isPasswordCorrect) {
          return {
-            description: `Incorrect password for email ${email}.`
+            alertDescription: `Incorrect password for email ${email}.`
          };
       }
 
@@ -180,9 +180,9 @@ const querier = {
 
    async forget({ email, password }) {
       const result = await this.login({ email, password });
-      if (result.description) {
+      if (result.alertDescription) {
          return {
-            description: result.description
+            alertDescription: result.alertDescription
          };
       }
 
@@ -206,9 +206,9 @@ const querier = {
 
    async deactivate({ email, password }) {
       const result = await this.login({ email, password });
-      if (result.description) {
+      if (result.alertDescription) {
          return {
-            description: result.description
+            alertDescription: result.alertDescription
          };
       }
 
@@ -229,9 +229,9 @@ const querier = {
    // almost identical to deactivate, consider combine
    // async reactivate({ email, password }) {
    //    const result = await this.login({ email, password });
-   //    if (result.description) {
+   //    if (result.alertDescription) {
    //       return {
-   //          description: result.description
+   //          alertDescription: result.alertDescription
    //       };
    //    }
 

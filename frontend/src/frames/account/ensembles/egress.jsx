@@ -3,20 +3,18 @@ import useAuth from "../../../library/hooks/auth-use";
 
 
 // logout button
-export default function Egress({ type, children, callback }) {
+export default function Egress({ type, children }) {
    const auth = useAuth();
 
-   const [description, setDescription] = useState();
+   const [alertDescription, setAlertDescription] = useState();
 
    const handleClick = () => {
       const data = auth.egress(type);
 
       // only returns description as data
       if (data) {
-         setDescription(data.description);
+         setAlertDescription(data.alert_description);
       }
-
-      callback();
 
    };
 
@@ -25,7 +23,7 @@ export default function Egress({ type, children, callback }) {
       <div onClick={handleClick}>
          {children}
 
-         <span>{description}</span>
+         <span>{alertDescription}</span>
       </div>
    );
 }

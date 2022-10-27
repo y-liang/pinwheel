@@ -13,6 +13,8 @@ const { JWT_SECRET } = process.env;
  * and set req email for later use
  * 
  * to exit middleware early, return next(); 
+ * 
+ * if no next(), it will not proceed back to the route handler
  */
 
 export default async function tokenVerifier(req, res, next) {
@@ -27,24 +29,24 @@ export default async function tokenVerifier(req, res, next) {
 
    // not sure? if null value
    if (token == 'null') {
-      req.token.notfound = true;
+      req.token.description = 'notfound';
       return next(); // exit this middleware early, must have return to exit out of this middleware
    }
 
    try {
       const decoded = jwt.verify(token, JWT_SECRET); // console.log('decoded email', decoded.email); // email
-
       req.token.email = decoded.email; // in database this email could be nonexistent or deactivated or active 
       req.token.accountId = decoded.accountId;
 
       next();
    } catch (error) {
-      console.error(error); // expired or not matched
+      // expired or not matched
       if (error.expiredAt) {
-         req.token.expired = true;
+         req.token.description = 'expired';
       } else {
-         req.token.invalid = true;
+         req.token.description = 'invalid';
       }
+      next();
    }
 
 

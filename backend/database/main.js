@@ -55,6 +55,5 @@ export default dbClient;
 // });
 
 
-// console.log('???pool', pool);
 
 // export default pool;

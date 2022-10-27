@@ -32,12 +32,11 @@ export default function Access({ type }) {
       }
 
       // useAuth - auth provider - access
-      const data = await auth.access(type, { email, password }); // successful if return null, otherwise return description
-      console.log('access data', data);
+      const data = await auth.access(type, { email, password }); // successful if return null, otherwise return alertDescription
 
-      // auth access only returns description as data
+      // auth access only returns alertDescription as data
       if (data) {
-         setError({ ...error, combination: data.description });
+         setError({ ...error, combination: data.alertDescription });
          return;
       }
 
@@ -82,17 +81,17 @@ function validateFields(fields) {
       password: value => /^[^\s]{6,36}$/.test(value),
    };
 
-   let description = {}; // can just declare, have to assign it as an object
+   let alertDescription = {}; // can just declare, have to assign it as an object
    Object.entries(fields).forEach(([key, value]) => {
       if (typeof value !== 'string' || value.length < 3) {
-         description[key] = `Sorry. Your ${key} must be between 6 and 30 characters long.`;
+         alertDescription[key] = `Sorry. Your ${key} must be between 6 and 30 characters long.`;
       } else if (!regexValid[key](value)) {
-         description[key] = `Enter a valid ${key}.`;
+         alertDescription[key] = `Enter a valid ${key}.`;
       }
    });
 
-   if (Object.keys(description).length !== 0) {
-      return description;
+   if (Object.keys(alertDescription).length !== 0) {
+      return alertDescription;
    }
 }
 

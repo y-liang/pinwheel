@@ -1,6 +1,5 @@
 
 import { Form, useLoaderData } from 'react-router-dom';
-import review from '../../../gears/review/review';
 
 
 
@@ -20,36 +19,35 @@ import review from '../../../gears/review/review';
 
 
 export default function ReviewView() {
-   const { review } = useLoaderData(); // the loader configured on the route too
 
 
 
-   return (
-      <>
-         <h1>review</h1>
+   // return (
+   //    <>
+   //       <h1>review</h1>
 
-         {review}
+   //       {review}
 
-         <div>
+   //       <div>
 
 
-            {/* submit to review/:reviewId/edit when clicked, method omitted??? */}
-            <Form action="edit">
-               <button type="submit">Edit</button>
-            </Form>
+   //          {/* submit to review/:reviewId/edit when clicked, method omitted??? */}
+   //          <Form action="edit">
+   //             <button type="submit">Edit</button>
+   //          </Form>
 
-            {/*  action points to "delete" - a relative action with destroy will submit the form to review/:reviewId/destroy when clicked */}
-            <Form method="post" action="delete" onSubmit={event => {
-               if (!confirm(
-                  "Are you sure you want to delete this record?"
-               )) {
-                  event.preventDefault();
-               }
-            }}>
-               <button type="submit">Delete</button>
-            </Form>
-         </div>
+   //          {/*  action points to "delete" - a relative action with destroy will submit the form to review/:reviewId/destroy when clicked */}
+   //          <Form method="post" action="delete" onSubmit={event => {
+   //             if (!confirm(
+   //                "Are you sure you want to delete this record?"
+   //             )) {
+   //                event.preventDefault();
+   //             }
+   //          }}>
+   //             <button type="submit">Delete</button>
+   //          </Form>
+   //       </div>
 
-      </>
-   );
+   //    </>
+   // );
 }
