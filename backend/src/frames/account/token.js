@@ -1,8 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import authenticate from '../../gears/authenticate.js';
-import accountStatus from '../../library/middleware/accountStatus.js';
-import tokenVerifier from '../../library/middleware/tokenVerifier.js';
+import { default as queryAccount } from '../../library/apis/account-querier';
+import tokenVerifier from '../../library/middleware/token-verifier.js';
 
 
 const router = express.Router();
@@ -16,11 +15,13 @@ const { JWT_SECRET } = process.env;
  * get - egress_type - logout | verify
  */
 
-router.post('/', (req, res) => {
-   const { access_type: type } = req.params;
+router.post('/', async (req, res) => {
+   const { access_type: type } = req.query;
    res.setHeader('Content-Type', 'application/json;charset=UTF-8');
 
    const { email, password = null } = req.body;
+
+   console.log('email, password', { email, password });
 
    let account;
    switch (type) {
@@ -37,8 +38,7 @@ router.post('/', (req, res) => {
             });
             return;
          }
-
-         account = await authenticate[type]({ email, password });
+         account = await queryAccount[type]({ email, password });
          break;
 
       case 'forget':
@@ -49,7 +49,7 @@ router.post('/', (req, res) => {
             });
             return;
          }
-         account = await authenticate.forget({ email });
+         account = await queryAccount.forget({ email });
          break;
 
       default:
@@ -70,10 +70,13 @@ router.post('/', (req, res) => {
    }
 
    /* successful, proceed following */
-   const { id: accountId } = account;
+   const { accountId } = account;
+
+   console.log('account', account);
+   console.log('accountId', accountId);
 
    // log activity
-   await authenticate.mark(type, accountId);
+   await queryAccount.mark(type, accountId);
 
 
    // successful, but if `forget` - do no send token in response
@@ -89,7 +92,7 @@ router.post('/', (req, res) => {
    }, JWT_SECRET, { expiresIn: 60 * 60 });
 
    // if `signup` and `forget`, send email with token
-   if (['signup', 'forget'].some(type)) {
+   if (['signup', 'forget'].includes(type)) {
       // ...
       // ...
    }
@@ -106,8 +109,8 @@ router.post('/', (req, res) => {
 });
 
 
-router.get('/', tokenVerifier(), (req, res) => {
-   const { egress_type: type } = req.params;
+router.get('/', tokenVerifier, async (req, res) => {
+   const { egress_type: type } = req.query;
    res.setHeader('Content-Type', 'application/json;charset=UTF-8');
    const { accountId, email } = req.token || {};
    if (!accountId || !email) {
@@ -120,7 +123,7 @@ router.get('/', tokenVerifier(), (req, res) => {
 
    // check if email, accountId exist and active
    // if not return error
-   if (!authenticate.check(accountId)) {
+   if (!queryAccount.check(accountId)) {
       res.status(400).send({
          error: 'invalid_request',
          error_description: `An account with email ${email} does not exists.`
@@ -128,11 +131,11 @@ router.get('/', tokenVerifier(), (req, res) => {
       return;
    }
 
-
+   // not sure if switch necessary
    switch (type) {
-      // case 'logout':
+      case 'logout':
       case 'verify':
-         await authenticate[type](accountId, email); // unnecessary, already verified above
+         // await queryAccount[type](accountId, email); // unnecessary, already verified above
          break;
 
       default:
@@ -146,7 +149,7 @@ router.get('/', tokenVerifier(), (req, res) => {
    /* successful, proceed following */
 
    // log activity
-   await authenticate.mark(type, accountId);
+   await queryAccount.mark(type, accountId);
 
    // successful, but if `logout` - do no send token in response
    if (type == 'logout') {

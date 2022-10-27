@@ -3,7 +3,7 @@
  */
 
 import { Outlet } from "react-router-dom";
-import AuthStatus from "./universal/auth/auth-status";
+import AuthStatus from "./share/auth/auth-status";
 
 export default function Frame() {
 

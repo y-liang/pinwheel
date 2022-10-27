@@ -5,8 +5,8 @@
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ErrorFound from './frames/cover/ensembles/error-found';
-import AuthProvider from './frames/universal/auth/auth-provider';
-import AuthRequire from './frames/universal/auth/auth-require';
+import AuthProvider from './frames/share/auth/auth-provider';
+import AuthRequire from './frames/share/auth/auth-require';
 
 import Frame from './frames/frame';
 import Cover from './frames/cover/cover';
@@ -20,9 +20,7 @@ import ReviewEdit, { action as actionReviewEdit, loader as loaderReviewEdit } fr
 import ProfileView from './frames/profile/ensembles/profile-edit';
 import ProfileView from './frames/profile/ensembles/profile-view';
 
-import LogIn from './frames/account/ensembles/login';
-import LogOut from './frames/account/ensembles/logout';
-import SignUp from './frames/account/ensembles/signup';
+
 import Access from './frames/account/ensembles/access';
 import Egress from './frames/account/ensembles/egress';
 

@@ -12,7 +12,7 @@ model Account {
    email    String @unique
    passHash String @map("pass_hash")
 
-   isDeactivated Boolean @default(false)
+   isDeactivated Boolean @default(false) @map("is_deactivated")
 
    role       Role       @default(reader)
    reviews    Review[]
@@ -30,6 +30,8 @@ enum Role {
    author
    editor
    administrator
+
+   @@map("roles")
 }
 
 model Profile {
@@ -38,7 +40,7 @@ model Profile {
    bio   String?
    image String?
 
-   isDeleted Boolean @default(false)
+   isDeleted Boolean @default(false) @map("is_deleted")
 
    account   Account @relation(fields: [accountId], references: [id])
    accountId String  @unique @map("account_id")
@@ -54,7 +56,7 @@ model Review {
    title   String  @db.VarChar(255)
    content String?
 
-   published Boolean @default(false)
+   isPublished Boolean @default(false) @map("is_published")
 
    reviewer   Account @relation(fields: [reviewerId], references: [id])
    reviewerId String  @map("reviewer_id")
@@ -86,4 +88,6 @@ enum Action {
    forget
    logout
    verify
+
+   @@map("actions")
 }

@@ -10,9 +10,7 @@ import useAuth from '../../../library/hooks/auth-use';
 export default function Access({ type }) {
    const navigate = useNavigate();
    const location = useLocation();
-   const auth = useAuth(); // everything in auth context provider
-
-   console.log('auth', auth);
+   const auth = useAuth(); // { account, access, egress } - everything in auth context provider
 
    const from = location.state?.from?.pathname || "/";
 
@@ -27,6 +25,7 @@ export default function Access({ type }) {
       const { email, password } = Object.fromEntries(formData);
 
       const formErrors = validateFields({ email, password });
+
       if (formErrors) {
          setError({ email: formErrors.email, password: formErrors.password });
          return;
@@ -34,17 +33,17 @@ export default function Access({ type }) {
 
       // useAuth - auth provider - access
       const data = await auth.access(type, { email, password }); // successful if return null, otherwise return description
+      console.log('access data', data);
 
-      if (data.description) {
+      // auth access only returns description as data
+      if (data) {
          setError({ ...error, combination: data.description });
          return;
       }
 
+
       navigate(from, { replace: true });
    };
-
-   console.log('err???', error);
-
 
 
 
@@ -56,16 +55,17 @@ export default function Access({ type }) {
             <label>
                email: <input name="email" type="text" />
             </label>{" "}
-            <span>{error?.email}</span>
+            <p>{error?.email}</p>
 
             <label>
                password: <input name="password" type="text" />
             </label>{" "}
-            <span>{error?.password}</span>
+            <p>{error?.password}</p>
 
 
-            <span>{error?.combination}</span>
-            <button type="submit">{type.toUpperCase()}</button>
+            <p>{error?.combination}</p>
+            {/* <button type="submit"></button> */}
+            <input type="submit" value={type.toUpperCase()} />
          </form>
       </div>
    );
@@ -82,21 +82,17 @@ function validateFields(fields) {
       password: value => /^[^\s]{6,36}$/.test(value),
    };
 
-   let description; // null
-   Object.entries(fields).forEach((key, value) => {
+   let description = {}; // can just declare, have to assign it as an object
+   Object.entries(fields).forEach(([key, value]) => {
       if (typeof value !== 'string' || value.length < 3) {
-         description = {
-            ...description,
-            [key]: `Sorry. Your ${key} must be between 6 and 30 characters long.`
-         };
-      } else if (!regexValid[key]) {
-         description = {
-            ...description,
-            [key]: `Enter a valid ${key}.`
-         };
+         description[key] = `Sorry. Your ${key} must be between 6 and 30 characters long.`;
+      } else if (!regexValid[key](value)) {
+         description[key] = `Enter a valid ${key}.`;
       }
    });
 
-   return description;
+   if (Object.keys(description).length !== 0) {
+      return description;
+   }
 }
 

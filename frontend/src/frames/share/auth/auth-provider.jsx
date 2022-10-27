@@ -12,7 +12,28 @@
 import { useState } from "react";
 import jwt from 'jsonwebtoken';
 import AuthContext from "../../../library/hooks/auth-context";
-import { tokenEgress, tokenAccess } from "../../../gears/account/token";
+import { default as fetchToken } from "../../../library/apis/token-fetcher";
+
+
+
+// only utilized within auth-provider, local storage
+const storage = {
+   setToken(token) {
+      localStorage.setItem('auth-token', JSON.stringify(token));
+   },
+   getToken() {
+      const tokenString = localStorage.getItem('auth-token');
+      console.log('tokenString', typeof tokenString);
+      if (tokenString !== 'undefined') { // reconsider???
+         const token = JSON.parse(tokenString);
+         console.log('storage.getToken()', token);
+         return token;
+      }
+   },
+   removeToken() {
+      localStorage.removeItem('auth-token');
+   },
+};
 
 
 // run before render, check token - during module initialization and before the app renders
@@ -22,7 +43,7 @@ if (typeof window !== 'undefined') { // Check if we're running in the browser.
 
    // verify token authenticity
    if (token) {
-      const data = await tokenEgress('verify', token); // token sent via headers
+      const data = fetchToken.egress('verify', token).then(res => res); // not await anymore, token sent via headers
       if (data.description) {
          storage.removeToken();
       } // else keep the token in localStorage for useEffect when app renders for the first time
@@ -41,7 +62,7 @@ export default function AuthProvider({ children }) {
    const [account, setAccount] = useState(accountData);
 
    const access = async (type, fields) => {
-      const data = await tokenAccess(type, fields);
+      const data = await fetchToken.access(type, fields);
       // data - { description } or { access_token, token_type, expires_in } 
 
       if (!data.description) {
@@ -59,7 +80,7 @@ export default function AuthProvider({ children }) {
 
    const egress = async (type) => {
       const token = storage.getToken();
-      const data = await tokenEgress(type, token);
+      const data = await fetchToken.egress(type, token);
 
       if (!data.description) {
          if (!data.refresh_token) { // type == 'logout'
@@ -84,18 +105,3 @@ export default function AuthProvider({ children }) {
    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-
-// only utilized within auth-provider, local storage
-const storage = {
-   setToken(token) {
-      localStorage.setItem('auth-token', JSON.stringify(token));
-   },
-   getToken() {
-      const token = JSON.parse(localStorage.getItem('auth-token'));
-      console.log('token', token);
-      return token;
-   },
-   removeToken() {
-      localStorage.removeItem('auth-token');
-   },
-};

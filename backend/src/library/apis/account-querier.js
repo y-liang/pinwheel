@@ -7,15 +7,15 @@
  * 
  */
 
-import encrypt from '../library/utils/encrypt.js';
-import { default as db } from '../../database/main.js';
+import encrypt from '../utils/encrypt.js';
+import { default as db } from '../../../database/main.js';
 
-const authenticate = {
+const querier = {
    // check if account is active
    async check(accountId) {
       // get the account record with an id
       // or select the id field of one account record with an id
-      const account = await db.account.findUnique({
+      const account = await db.account.findFirst({
          where: {
             id: accountId,
             isDeactivated: false
@@ -51,7 +51,7 @@ const authenticate = {
    // create a profile for verified account
    async verify(accountId, email) {
       // check if profile exists, account already verified
-      const profileExists = await db.profile.findUnique({
+      const profileExists = await db.profile.findFirst({
          where: {
             accountId,
          },
@@ -63,7 +63,7 @@ const authenticate = {
 
       // if profile exists
       if (profileExists) {
-         if (!isDeleted) {
+         if (!profileExists.isDeleted) {
             return {
                description: `An account with email ${email} has already been verified.`
             };
@@ -107,9 +107,10 @@ const authenticate = {
          }
       });
 
+
       // if account exists
       if (accountExists) {
-         if (!isDeactivated) {
+         if (!accountExists.isDeactivated) {
             return {
                description: `An account with email ${email} already exists.`
             };
@@ -142,12 +143,11 @@ const authenticate = {
             id: true,
          }
       });
-
       return { accountId, email };
    },
 
    async login({ email, password }) {
-      const { id: accountId, passHash } = await db.account.findUnique({
+      const { id: accountId, passHash } = await db.account.findFirst({
          where: {
             email,
             isDeactivated: false
@@ -250,8 +250,5 @@ const authenticate = {
 
 };
 
-
-
-
-export default authenticate;
+export default querier;
 

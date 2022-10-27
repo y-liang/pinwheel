@@ -5,7 +5,6 @@
 
 const { BACKEND_URL } = process.env;
 const baseurl = BACKEND_URL;
-console.log(BACKEND_URL);
 
 const review = {
 

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { default as routerReview } from './frames/review/review.js';
-import { default as routerAccount } from './frames/account/account.js';
+import { default as routerToken } from './frames/account/token.js';
 import { default as rateLimiter } from './library/middleware/rateLimiter.js';
 
 const router = express.Router();
@@ -14,7 +14,7 @@ router.use(express.json()); // for parsing application/json;charset=UTF-8, eg. g
 // middleware
 router.use(rateLimiter);
 
-router.use('/account', routerAccount);
+router.use('/token', routerToken);
 router.use('/review', routerReview);
 
 export default router;
