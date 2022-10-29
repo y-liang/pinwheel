@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { default as queryAccount } from '../../library/apis/account-querier.js';
 import tokenVerifier from '../../library/middleware/token-verifier.js';
+import sendEmail from '../../library/utils/send.js';
 
 
 const router = express.Router();
@@ -88,10 +89,10 @@ router.post('/', async (req, res) => {
 
    // if `signup` and `forget`, send email with token
    if (['signup', 'forget'].includes(type)) {
+      sendEmail('signup', email, link);
       // ...
       // ...
    }
-
 
 
    // response for `signup`, `login`, `reset`

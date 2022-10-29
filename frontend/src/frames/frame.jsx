@@ -9,7 +9,7 @@ export default function Frame() {
 
 
    return (
-      <div>
+      <div className="text-3xl font-bold">
          <AuthStatus />
          <h1>frame head</h1>
          <Outlet />

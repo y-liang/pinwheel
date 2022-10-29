@@ -6,7 +6,7 @@ export default function AuthStatus() {
    const auth = useAuth();
    const navigate = useNavigate();
 
-   if (!auth.account) {
+   if (!auth.accountId) {
 
       return <p>You are not logged in.</p>;
    }
